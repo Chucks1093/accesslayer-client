@@ -90,7 +90,7 @@ export default function DiscoveryFeed() {
 
 	// Create filter query params for marketplace links
 	const sortParam = (sort: string) =>
-		sort === 'volume_desc' ? '/marketplace' : `/marketplace?sort=${sort}`;
+		`/marketplace?sort=${sort}`;
 
 	return (
 		<section className="space-y-8 px-6 py-16 md:px-12">
