@@ -97,7 +97,7 @@ export default function SubscriptionAccessGate({
                             Subscribe for {durationDays} days
                         </Button>
                     </>
-                )}}
+                )}
 			</div>
 		);
 	}
