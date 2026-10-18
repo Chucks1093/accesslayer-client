@@ -575,7 +575,7 @@ function StakingDashboardContent() {
 							accent="amber"
 						/>
 						<SummaryStat
-							label="Total claimable rewards"
+							label="Epoch rewards available"
 							value={`${(totalClaimableStroops / STROOPS_PER_XLM).toFixed(4)} XLM`}
 							icon={Coins}
 							accent="emerald"
