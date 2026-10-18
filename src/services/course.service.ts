@@ -125,6 +125,20 @@ export interface Course {
 	 * While true, buying and selling must be disabled in the UI.
 	 */
 	tradingPaused?: boolean;
+	/**
+	 * Whether an admin has frozen trading for this specific key (#1121).
+	 * While true, buying and selling must be disabled in the UI and a
+	 * freeze status banner must be shown with the reason and expiry.
+	 */
+	isFrozen?: boolean;
+	/** Human-readable reason for the freeze, surfaced in the banner. */
+	freezeReason?: string | null;
+	/**
+	 * ISO timestamp when the freeze expires; `null`/absent means the freeze
+	 * is indefinite. The banner auto-dismisses and trading re-enables once
+	 * this moment passes.
+	 */
+	freezeExpiresAt?: string | null;
 	/** Performance bond status for creator key protection (#975). */
 	performanceBond?: PerformanceBond | null;
 	/** Key-level circuit breaker price impact threshold in basis points. */
