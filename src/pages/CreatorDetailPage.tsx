@@ -2,6 +2,7 @@ import { Link, useLocation, useNavigate, useParams } from 'react-router';
 import { useEffect, useState } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useCreatorDetail, usePriceHistory } from '@/hooks/useCreators';
+import { useKeyFreeze } from '@/hooks/useKeyFreeze';
 import { useRecentlyViewed } from '@/hooks/useRecentlyViewed';
 import { useCreatorProfileStaleIndicator } from '@/hooks/useCreatorProfileStaleIndicator';
 import { useOnChainMetadata } from '@/hooks/useOnChainMetadata';
@@ -69,6 +70,8 @@ import { UnavailableAction } from '@/components/ui/unavailable-action';
 import GraduatedCurveMilestoneChart from '@/components/common/GraduatedCurveMilestoneChart';
 import KeyDeprecationBanner from '@/components/common/KeyDeprecationBanner';
 import KeyTradingPausedBanner from '@/components/common/KeyTradingPausedBanner';
+import KeyFreezeStatusBanner from '@/components/common/KeyFreezeStatusBanner';
+import AddToBundleButton from '@/components/common/AddToBundleButton';
 import MergeProposalBanner from '@/components/common/MergeProposalBanner';
 import KeyBuybackModal from '@/components/common/KeyBuybackModal';
 import type { KeyBuybackReceipt } from '@/hooks/useKeyBuyback';
@@ -120,6 +123,9 @@ function CreatorDetailPageContent() {
 
 	const { data: priceHistory, isLoading: isPriceHistoryLoading } =
 		usePriceHistory(id || '', interval);
+
+	// Active admin freeze (#1121): drives the banner and disables trading.
+	const keyFreeze = useKeyFreeze(creator);
 
 	useNavigationTiming('creator_profile');
 	useDocumentTitle(creator ? `${creator.title} — AccessLayer` : null);
@@ -544,6 +550,8 @@ function CreatorDetailPageContent() {
 					/>
 				</div>
 
+				{keyFreeze && <KeyFreezeStatusBanner freeze={keyFreeze} />}
+
 				<SectionErrorBoundary sectionName="price history">
 					<PriceHistoryChart
 						data={priceHistory}
@@ -594,9 +602,11 @@ function CreatorDetailPageContent() {
 						<p className="mt-0.5 text-sm text-white/80">
 							{isKeyDeprecated(creator)
 								? 'Key is deprecated. New buys are disabled.'
-								: buyDisabledReason
-									? buyDisabledReason
-									: 'Purchase keys for this creator.'}
+								: keyFreeze
+									? keyFreeze.reason
+									: buyDisabledReason
+										? buyDisabledReason
+										: 'Purchase keys for this creator.'}
 						</p>
 
 						<SpreadIndicator
@@ -640,6 +650,17 @@ function CreatorDetailPageContent() {
 					</div>
 
 					<div className="flex items-center gap-2">
+						<AddToBundleButton
+							keyId={creator.id}
+							keyName={displayName}
+							priceStroops={resolveCreatorKeyPriceStroops(creator) ?? 0}
+							currentSupply={creator.creatorShareSupply ?? null}
+							thumbnail={displayAvatar ?? undefined}
+							disabled={Boolean(keyFreeze)}
+							disabledReason={keyFreeze?.reason}
+							className="min-h-11 w-full sm:h-10 sm:min-h-0 sm:w-auto"
+						/>
+
 						<PriceAlertButton
 							userId={userAddress}
 							keyId={creator.id}
@@ -656,6 +677,16 @@ function CreatorDetailPageContent() {
 							>
 								Buy Disabled (Deprecated)
 							</Button>
+						) : keyFreeze ? (
+							<UnavailableAction disabled reason={keyFreeze.reason}>
+								<Button
+									type="button"
+									data-testid="key-detail-buy-button"
+									className="min-h-11 w-full rounded-xl bg-amber-400 font-bold text-slate-950 hover:bg-amber-300 sm:h-10 sm:min-h-0 sm:w-auto"
+								>
+									Buy Key
+								</Button>
+							</UnavailableAction>
 						) : creator.tradingPaused ? (
 							<UnavailableAction disabled reason="Trading is currently paused">
 								<Button
@@ -988,6 +1019,7 @@ function CreatorDetailPageContent() {
 						isSubmitting={tradeSubmitting}
 						requireConfirmation={true}
 						tradingPaused={creator.tradingPaused}
+						keyFreeze={keyFreeze}
 					/>
 				)}
 
