@@ -330,7 +330,7 @@ const BondingCurveChart: React.FC<BondingCurveChartProps> = ({
 							</button>
 							<button
 								type="button"
-								data-testid="twap-window-24h"
+								data-testid="twap-window-4h" aria-pressed={effectiveTwapWindow === '4h' && isOverlayVisible} onClick={() => handleTwapWindowChange('4h')} className={cn(''rounded-md px-3 py-1 text-xs font-bold tracking-wider transition-colors'', effectiveTwapWindow === '4h' && isOverlayVisible ? ''bg-emerald-400 text-slate-950 shadow-sm'' : ''text-white/55 hover:bg-white/10 hover:text-white'')}>4H</button><button type="button" data-testid="twap-window-24h"
 								aria-pressed={effectiveTwapWindow === '24h' && isOverlayVisible}
 								onClick={() => handleTwapWindowChange('24h')}
 								className={cn(
